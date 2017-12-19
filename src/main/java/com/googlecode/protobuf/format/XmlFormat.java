@@ -317,13 +317,14 @@ public final class XmlFormat extends AbstractCharBasedFormatter {
         // regex matcher has stack overflows on large inputs.
         private static final Pattern WHITESPACE =
           Pattern.compile("(\\s|(#.*$))++", Pattern.MULTILINE);
+
+        // This regex should return the next token to analyze: we build it by priority: first we look for the
+        // "expression" keyword, then a closing tag and if everything before fails, we match everything until the next
+        // tag as the next token.
         private static final Pattern TOKEN = Pattern.compile(
-          "extension|" + "[a-zA-Z_\\s;@][0-9a-zA-Z_\\s;@+-]*+|" +        // an identifier with special handling for 'extension'
-          "[.]?[0-9+-][0-9a-zA-Z_.+-]*+|" +             // a number
+          "extension|" +
           "</|" +                                       // an '</' closing element marker
-          "[\\\\0-9]++|" +                              // a \000 byte sequence for bytes handling
-          "\"([^\"\n\\\\]|\\\\.)*+(\"|\\\\?$)|" +       // a double-quoted string
-          "\'([^\'\n\\\\]|\\\\.)*+(\'|\\\\?$)",         // a single-quoted string
+          "[^<>]++",
           Pattern.MULTILINE);
 
         private static Pattern DOUBLE_INFINITY = Pattern.compile("-?inf(inity)?",
